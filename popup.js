@@ -3,6 +3,8 @@ const recommendedVideos = document.getElementById("recommendedVideos");
 const commentSection = document.getElementById("commentSection");
 const liveChat = document.getElementById("liveChat");
 const ad = document.getElementById("ad");
+const videoDetails = document.getElementById("videoDetails");
+const searchBar = document.getElementById("searchBar");
 
 async function doSomething() {
   const item = await chrome.storage.sync.get(["homeFeed"]);
@@ -11,6 +13,8 @@ async function doSomething() {
   const item4 = await chrome.storage.sync.get(["commentSection"]);
   const item5 = await chrome.storage.sync.get(["liveChat"]);
   const item6 = await chrome.storage.sync.get(["ad"]);
+  const item7 = await chrome.storage.sync.get(["videoDetails"]);
+  const item8 = await chrome.storage.sync.get(["searchBar"]);
   document.getElementById("homeFeed").checked = item.homeFeed;
   document.getElementById("recommendedVideos").checked =
     item2.recommendedVideos;
@@ -18,6 +22,8 @@ async function doSomething() {
   document.getElementById("commentSection").checked = item4.commentSection;
   document.getElementById("liveChat").checked = item5.liveChat;
   document.getElementById("ad").checked = item6.ad;
+  document.getElementById("videoDetails").checked = item7.videoDetails;
+  document.getElementById("searchBar").checked = item8.searchBar;
 }
 
 homeFeed.addEventListener("change", function (event) {
@@ -271,5 +277,85 @@ shorts.addEventListener("change", function (event) {
     );
   }
 });
+
+videoDetails.addEventListener("change", function (event) {
+    if (this.checked) {
+        chrome.storage.sync.set({ videoDetails: true });
+
+        //sync changes
+        let my_tabid;
+
+        chrome.tabs.query(
+            {currentWindow: true, active: true },
+            async function (tabs) {
+                my_tabid = await tabs[0].id;
+                if (tabs[0].url.includes("youtube.com/watch")) {
+                    let message = {
+                        text: "hideVideoDetails",
+                    };
+                    await chrome.tabs.sendMessage(my_tabid, message);
+                }
+            }
+        );
+    }
+    else {
+        chrome.storage.sync.set({videoDetails: false})
+
+        let my_tabid;
+
+        chrome.tabs.query(
+            {currentWindow: true, active: true },
+            async function (tabs) {
+                my_tabid = await tabs[0].id;
+                if (tabs[0].url.includes("youtube.com/watch")) {
+                    let message = {
+                        text: "showVideoDetails",
+                    };
+                    await chrome.tabs.sendMessage(my_tabid, message);
+                }
+            }
+        );
+    }
+  });
+
+searchBar.addEventListener("change", function (event) {
+    if (this.checked) {
+        chrome.storage.sync.set({ searchBar: true });
+
+        //sync changes
+        let my_tabid;
+
+        chrome.tabs.query(
+            {currentWindow: true, active: true },
+            async function (tabs) {
+                my_tabid = await tabs[0].id;
+                if (tabs[0].url.includes("youtube.com/watch")) {
+                    let message = {
+                        text: "hideSearchBar",
+                    };
+                    await chrome.tabs.sendMessage(my_tabid, message);
+                }
+            }
+        );
+    }
+    else {
+        chrome.storage.sync.set({ searchBar: false })
+
+        let my_tabid;
+
+        chrome.tabs.query(
+            {currentWindow: true, active: true },
+            async function (tabs) {
+                my_tabid = await tabs[0].id;
+                if (tabs[0].url.includes("youtube.com/watch")) {
+                    let message = {
+                        text: "showSearchBar",
+                    };
+                    await chrome.tabs.sendMessage(my_tabid, message);
+                }
+            }
+        );
+    }
+  });
 
 doSomething();

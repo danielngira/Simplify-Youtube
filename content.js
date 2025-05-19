@@ -4,6 +4,7 @@ let item,
   item4,
   item5,
   item6,
+  item7,
   related,
   homeFeed,
   scrollContainer,
@@ -12,7 +13,9 @@ let item,
   shorts,
   commentSection,
   liveChat,
-  ad;
+  ad,
+  videoDetails,
+  searchBar;
 async function doSomething() {
   item = await chrome.storage.sync.get(["homeFeed"]);
   item2 = await chrome.storage.sync.get(["recommendedVideos"]);
@@ -20,6 +23,8 @@ async function doSomething() {
   item4 = await chrome.storage.sync.get(["commentSection"]);
   item5 = await chrome.storage.sync.get(["liveChat"]);
   item6 = await chrome.storage.sync.get(["ad"]);
+  item7 = await chrome.storage.sync.get(["videoDetails"]);
+  item8 = await chrome.storage.sync.get(["searchBar"]);
 }
 doSomething();
 
@@ -79,7 +84,29 @@ async function performAction(message) {
     ad.forEach(function (ele) {
       ele.style["display"] = "none";
     });
-  } else if (message === "hello") {
+  }
+    //Hide video details
+    else if (message == "hideVideoDetails"){
+      videoDetails = document.getElementById("above-the-fold");
+      videoDetails.style["display"] = "none";
+  }
+    //Show video details
+    else if (message == "showVideoDetails"){
+      videoDetails = document.getElementById("above-the-fold");
+      videoDetails.style["display"] = "";
+  } 
+    //Hide search bar
+    else if (message == "hideSearchBar"){
+      searchBar = document.getElementById("center");
+      searchBar.style["display"] = "none";
+  }
+    //Show search bar
+    else if (message == "showSearchBar"){
+      searchBar = document.getElementById("center");
+      searchBar.style["display"] = "";
+  } 
+
+  else if (message === "hello") {
     await doSomething();
     // declaring variables to store each element
     related = document.getElementById("related");
@@ -90,6 +117,8 @@ async function performAction(message) {
     commentSection = document.getElementById("comments");
     liveChat = document.getElementById("chat");
     ad = document.querySelectorAll("#masthead-ad");
+    videoDetails = document.getElementById("above-the-fold");
+    searchBar = document.getElementById("center");
 
     // check if the page has a homefeed
     if (item && item.homeFeed && homeFeed !== null) {
@@ -138,6 +167,17 @@ async function performAction(message) {
       // set the visibility of side bar to hidden
       shorts.style["display"] = "none";
       shorts = null;
+    }
+
+    if (item7 && item7.videoDetails && videoDetails !== null) {
+      //hide the video details
+      videoDetails.style["display"] = "none";
+      videoDetails = null;
+    }
+    if (item8 && item8.searchBar && searchBar !== null) {
+      //hide the video details
+      searchBar.style["display"] = "none";
+      searchBar = null;
     }
   }
 }
