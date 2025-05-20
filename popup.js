@@ -5,6 +5,7 @@ const liveChat = document.getElementById("liveChat");
 const ad = document.getElementById("ad");
 const videoDetails = document.getElementById("videoDetails");
 const searchBar = document.getElementById("searchBar");
+const videoControls = document.getElementById("videoControls");
 
 async function doSomething() {
   const item = await chrome.storage.sync.get(["homeFeed"]);
@@ -15,6 +16,7 @@ async function doSomething() {
   const item6 = await chrome.storage.sync.get(["ad"]);
   const item7 = await chrome.storage.sync.get(["videoDetails"]);
   const item8 = await chrome.storage.sync.get(["searchBar"]);
+  const item9 = await chrome.storage.sync.get(["videoControls"]);
   document.getElementById("homeFeed").checked = item.homeFeed;
   document.getElementById("recommendedVideos").checked =
     item2.recommendedVideos;
@@ -24,6 +26,7 @@ async function doSomething() {
   document.getElementById("ad").checked = item6.ad;
   document.getElementById("videoDetails").checked = item7.videoDetails;
   document.getElementById("searchBar").checked = item8.searchBar;
+  document.getElementById("videoControls").checked = item9.videoControls;
 }
 
 homeFeed.addEventListener("change", function (event) {
@@ -350,6 +353,47 @@ searchBar.addEventListener("change", function (event) {
                 if (tabs[0].url.includes("youtube.com/watch")) {
                     let message = {
                         text: "showSearchBar",
+                    };
+                    await chrome.tabs.sendMessage(my_tabid, message);
+                }
+            }
+        );
+    }
+  });
+
+
+videoControls.addEventListener("change", function (event) {
+    if (this.checked) {
+        chrome.storage.sync.set({ videoControls: true });
+
+        //sync changes
+        let my_tabid;
+
+        chrome.tabs.query(
+            {currentWindow: true, active: true },
+            async function (tabs) {
+                my_tabid = await tabs[0].id;
+                if (tabs[0].url.includes("youtube.com/watch")) {
+                    let message = {
+                        text: "hideVideoControls",
+                    };
+                    await chrome.tabs.sendMessage(my_tabid, message);
+                }
+            }
+        );
+    }
+    else {
+        chrome.storage.sync.set({ videoControls: false })
+
+        let my_tabid;
+
+        chrome.tabs.query(
+            {currentWindow: true, active: true },
+            async function (tabs) {
+                my_tabid = await tabs[0].id;
+                if (tabs[0].url.includes("youtube.com/watch")) {
+                    let message = {
+                        text: "showVideoControls",
                     };
                     await chrome.tabs.sendMessage(my_tabid, message);
                 }

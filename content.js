@@ -15,7 +15,8 @@ let item,
   liveChat,
   ad,
   videoDetails,
-  searchBar;
+  searchBar,
+  videoControls;
 async function doSomething() {
   item = await chrome.storage.sync.get(["homeFeed"]);
   item2 = await chrome.storage.sync.get(["recommendedVideos"]);
@@ -25,6 +26,7 @@ async function doSomething() {
   item6 = await chrome.storage.sync.get(["ad"]);
   item7 = await chrome.storage.sync.get(["videoDetails"]);
   item8 = await chrome.storage.sync.get(["searchBar"]);
+  item9 = await chrome.storage.sync.get(["videoControls"]);
 }
 doSomething();
 
@@ -105,7 +107,16 @@ async function performAction(message) {
       searchBar = document.getElementById("center");
       searchBar.style["display"] = "";
   } 
-
+    // Hide video controls
+    else if (message == "hideVideoControls"){
+      videoControls = document.querySelector(".ytp-chrome-bottom");
+      videoControls.style["visibility"] = "hidden";
+  }
+    // Show video controls
+    else if (message == "showVideoControls"){
+      videoControls = document.querySelector(".ytp-chrome-bottom");
+      videoControls.style["visibility"] = "visible";
+  }
   else if (message === "hello") {
     await doSomething();
     // declaring variables to store each element
@@ -119,6 +130,7 @@ async function performAction(message) {
     ad = document.querySelectorAll("#masthead-ad");
     videoDetails = document.getElementById("above-the-fold");
     searchBar = document.getElementById("center");
+    videoControls = document.querySelector(".ytp-chrome-bottom");
 
     // check if the page has a homefeed
     if (item && item.homeFeed && homeFeed !== null) {
@@ -175,9 +187,14 @@ async function performAction(message) {
       videoDetails = null;
     }
     if (item8 && item8.searchBar && searchBar !== null) {
-      //hide the video details
+      //hide the search bar
       searchBar.style["display"] = "none";
       searchBar = null;
+    }
+    if (item9 && item9.videoControls && videoControls !== null) {
+      //hide the video controls
+      videoControls.style["visibility"] = "hidden";
+      videoControls = null;
     }
   }
 }
