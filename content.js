@@ -16,7 +16,9 @@ let item,
   ad,
   videoDetails,
   searchBar,
-  videoControls;
+  videoControls,
+  limitInfiniteScroll,
+  thumbnails;
 async function doSomething() {
   item = await chrome.storage.sync.get(["homeFeed"]);
   item2 = await chrome.storage.sync.get(["recommendedVideos"]);
@@ -27,6 +29,8 @@ async function doSomething() {
   item7 = await chrome.storage.sync.get(["videoDetails"]);
   item8 = await chrome.storage.sync.get(["searchBar"]);
   item9 = await chrome.storage.sync.get(["videoControls"]);
+  item10 = await chrome.storage.sync.get(["limitInfiniteScroll"]);
+  item11 = await chrome.storage.sync.get(["thumbnails"]);
 }
 doSomething();
 
@@ -117,6 +121,31 @@ async function performAction(message) {
       videoControls = document.querySelector(".ytp-chrome-bottom");
       videoControls.style["visibility"] = "visible";
   }
+
+    // popup.js should send these when the user flips your new toggle
+    else if (message === "hideInfiniteScroll") {
+    chrome.storage.sync.set({ limitInfiniteScroll: true });
+    limitHomeVideos(false);
+  }
+    else if (message === "showInfiniteScroll") {
+    chrome.storage.sync.set({ limitInfiniteScroll: false });
+    limitHomeVideos(true);
+  }
+    //hide thumbnails
+    else if (message === "hideThumbnails") {
+    thumbnails = document.querySelectorAll("#thumbnail");
+    thumbnails.forEach(function (thumbnail){
+      thumbnail.style["visibility"] = "hidden";
+    });
+  }
+    //show thumbnails
+    else if (message === "showThumbnails") {
+    thumbnails = document.querySelectorAll("#thumbnail");
+    thumbnails.forEach(function (thumbnail){
+      thumbnail.style["visibility"] = "visible";
+    });
+  }
+
   else if (message === "hello") {
     await doSomething();
     // declaring variables to store each element
@@ -131,6 +160,7 @@ async function performAction(message) {
     videoDetails = document.getElementById("above-the-fold");
     searchBar = document.getElementById("center");
     videoControls = document.querySelector(".ytp-chrome-bottom");
+    thumbnails = document.querySelectorAll("#thumbnail");
 
     // check if the page has a homefeed
     if (item && item.homeFeed && homeFeed !== null) {
@@ -146,9 +176,11 @@ async function performAction(message) {
     }
 
     if (youtubeLogo !== null) {
-      youtubeLogo.innerHTML =
-        '<img src = "https://raw.githubusercontent.com/KishanKokal/Untrapped/89f2281ee2f6f936d9eb831d065ab436cd785675/untrapped.svg" width = "100px"></img>';
-      youtubeLogo = null;
+      const newLogo = document.createElement('img');
+      
+      newLogo.src = chrome.runtime.getURL('assets/simpletube.svg');
+      newLogo.width = 100;
+      youtubeLogo.parentNode.replaceChild(newLogo, youtubeLogo);
     }
 
     // check if the page has a side bar
@@ -196,7 +228,54 @@ async function performAction(message) {
       videoControls.style["visibility"] = "hidden";
       videoControls = null;
     }
+    if (item11 && item11.thumbnails && thumbnails !== null) {
+      //hide the video controls
+      thumbnails = document.querySelectorAll("#thumbnail");
+      thumbnails.forEach(function (thumbnail) {
+        thumbnail.style["visibility"] = "hidden";
+      });
+    }
   }
 }
+
+// only show up to N videos on the home feed
+const MAX_HOME = 3;
+
+function limitHomeVideos(showAll = false) {
+  const container = document.getElementById("contents");
+  if (!container) return;
+  const videos = Array.from(
+    container.querySelectorAll("#content")
+  );
+  videos.forEach((video, i) => {
+    video.style.display = (i < MAX_HOME || showAll) ? "" : "none";
+  });
+}
+
+// run once on load (and respect any stored toggle)
+const observerTarget = document.getElementById("contents");
+if (observerTarget) {
+  // initial trim
+  chrome.storage.sync.get(["limitInfiniteScroll"], ({ limitInfiniteScroll }) => {
+    limitHomeVideos(!limitInfiniteScroll);
+  });
+
+  // watch for new videos being appended
+  const observer = new MutationObserver((mutations) => {
+    // bail if no nodes were added
+    if (!mutations.some(m => m.addedNodes.length)) return;
+
+    chrome.storage.sync.get(["limitInfiniteScroll"], ({ limitInfiniteScroll }) => {
+      limitHomeVideos(!limitInfiniteScroll);
+    });
+
+    chrome.storage.sync.get(["thumbnails"], ({ thumbnails }) => {
+      performAction(thumbnails ? "hideThumbnails" : "showThumbnails");
+    });
+
+  });
+  observer.observe(observerTarget, { childList: true, subtree: true });
+}
+
 
 performAction("hello");

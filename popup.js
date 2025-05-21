@@ -6,6 +6,8 @@ const ad = document.getElementById("ad");
 const videoDetails = document.getElementById("videoDetails");
 const searchBar = document.getElementById("searchBar");
 const videoControls = document.getElementById("videoControls");
+const limitInfiniteScroll =  document.getElementById("limitInfiniteScroll");
+const thumbnails = document.getElementById("thumbnails");
 
 async function doSomething() {
   const item = await chrome.storage.sync.get(["homeFeed"]);
@@ -17,6 +19,8 @@ async function doSomething() {
   const item7 = await chrome.storage.sync.get(["videoDetails"]);
   const item8 = await chrome.storage.sync.get(["searchBar"]);
   const item9 = await chrome.storage.sync.get(["videoControls"]);
+  const item10 = await chrome.storage.sync.get(["limitInfiniteScroll"]);
+  const item11 = await chrome.storage.sync.get(["thumbnails"]);
   document.getElementById("homeFeed").checked = item.homeFeed;
   document.getElementById("recommendedVideos").checked =
     item2.recommendedVideos;
@@ -27,6 +31,8 @@ async function doSomething() {
   document.getElementById("videoDetails").checked = item7.videoDetails;
   document.getElementById("searchBar").checked = item8.searchBar;
   document.getElementById("videoControls").checked = item9.videoControls;
+  document.getElementById("limitInfiniteScroll").checked = Boolean(item10.limitInfiniteScroll);
+  document.getElementById("thumbnails").checked = item11.thumbnails;
 }
 
 homeFeed.addEventListener("change", function (event) {
@@ -401,5 +407,33 @@ videoControls.addEventListener("change", function (event) {
         );
     }
   });
+
+  limitInfiniteScroll.addEventListener("change", function (event) {
+  const hideExtra = this.checked;                // true → hide beyond 3
+  chrome.storage.sync.set({ limitInfiniteScroll: hideExtra });
+
+  chrome.tabs.query({ currentWindow: true, active: true }, async (tabs) => {
+    const tab = tabs[0];
+    if (!tab.url.includes("youtube.com")) return;
+    // tell content.js to hide or show the extra videos immediately
+    await chrome.tabs.sendMessage(tab.id, {
+      text: hideExtra ? "hideInfiniteScroll" : "showInfiniteScroll"
+    });
+  });
+});
+
+thumbnails.addEventListener("change", function (event) {
+  action = this.checked;
+  chrome.storage.sync.set({ thumbnails: action });
+
+  chrome.tabs.query({ currentWindow: true, active: true }, async (tabs) => {
+    const tab = tabs[0];
+    if (!tab.url.includes("youtube.com")) return;
+
+    await chrome.tabs.sendMessage(tab.id, {
+      text: action ? "hideThumbnails" : "showThumbnails"
+    });
+  });
+});
 
 doSomething();
