@@ -166,16 +166,72 @@ async function performAction(message) {
         scrollContainer.style["display"] = "none";
     
 
-                // show a JS confirm dialog
-        const ok = window.confirm("Do you want to continue to YouTube?");
-        if (!ok) {
-            // user clicked “Cancel” → redirect away
-            window.location.href = "about:blank";
-        } else {
-            // user clicked “OK” → restore the feed
-            homeFeed.style.display = "";
-            scrollContainer.style.display = "";
+      // quirky question bank
+      const questions = [
+        "Do you really need to watch YouTube while the kids miss you?",
+        "Have you done your homework yet?",
+        "Is this the best use of your time right now?",
+        "Would your future self thank you for watching this?",
+        "Could a quick break be better spent stretching?",
+        "Is YouTube more important than your dinner plans?",
+        "Are you avoiding something more urgent?",
+        "Will this video help you learn or just distract you?",
+        "Is there a book you could be reading instead?",
+        "Are you watching for fun or out of habit?",
+        "Could you answer one email instead?",
+        "Might a walk outside clear your head better?",
+        "Is it time for a power nap?",
+        "Have you complimented someone today?",
+        "Do you have a goal you’re delaying by watching?",
+        "Is this video making you feel good or guilty?",
+        "Could you spend five minutes meditating instead?",
+        "Have you called your best friend lately?",
+        "Is this video really adding value to your day?",
+        "Would you rather be doing something creative?",
+        "Are your plants thirsty for your attention more than you need YouTube?",
+        "Will watching this video make you feel accomplished or just tired?",
+        "Could you spend this time organizing your workspace instead?",
+        "Are you learning something new or just scrolling aimlessly?",
+        "Is your back asking for a break more than your brain craves YouTube?",
+        "Would you rather be planning your tomorrow right now?",
+        "Are you going to regret watching this when you look at the clock?",
+        "Have you checked off today's to-do list yet?",
+        "Is there a quick chore you can finish before diving in?",
+        "Could you use this break to call a family member?",
+        "Do you really want to learn more cat videos right now?",
+        "Is your attention span happier with a book than clips?",
+        "Would a cup of tea satisfy that YouTube craving?",
+        "Is it time to stretch or time to stream?",
+        "Have you smiled at yourself in the mirror today?",
+        "Is this binge or bite going to leave you breathless?",
+        "Could 5 minutes of journaling help more than 5 minutes of clips?",
+        "Are you feeding your mind or just feeding the algorithm?",
+        "Would your pet rather play with you than watch you watch videos?",
+        "Is your phone in control of you or are you in control of your phone?",
+        "Could you replace one video with one act of kindness?",
+        "Is this video audio stimulating or mind-numbing?",
+        "Have you taken a deep breath since you opened YouTube?",
+        "Is your productivity high or is your cursor just spinning?",
+        "Will this video bring you closer to a goal or farther from it?",
+      ];
+
+      // 3) decide how many confirms to show (1–50)
+      const rounds = Math.floor(Math.random() * 50) + 1;
+  
+      // 4) run the cascade
+      for (let i = 0; i < rounds; i++) {
+        // pick a random question
+        const q = questions[Math.floor(Math.random() * questions.length)];
+        const cont = window.confirm(q);
+        if (!cont) {
+        // bail out early if they say “No”
+        return window.location.href = "about:blank";
         }
+      }
+
+      // 5) if they clicked OK every time, restore the feed
+      homeFeed.style.display       = "";
+      scrollContainer.style.display = "";
   }
   else if (message === "hideScreening") {
         homeFeed = document.getElementById("contents");
