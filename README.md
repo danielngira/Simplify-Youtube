@@ -10,7 +10,7 @@ To clone this repository, follow the steps below:
 4. Execute the following command:
 
    ```
-   git clone https://github.com/danielngira/simpletube.git
+   git clone git@github.com:danielngira/Simplify-Youtube.git
    ```
 
 ## Installation Guide
@@ -18,7 +18,7 @@ To clone this repository, follow the steps below:
 1. Once the repository is cloned, navigate into the project directory:
 
    ```
-   cd simpletube
+   cd Simplify-Youtube
    ```
 
 2. Open Google Chrome:
