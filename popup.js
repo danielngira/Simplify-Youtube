@@ -8,6 +8,7 @@ const searchBar = document.getElementById("searchBar");
 const videoControls = document.getElementById("videoControls");
 const limitInfiniteScroll =  document.getElementById("limitInfiniteScroll");
 const thumbnails = document.getElementById("thumbnails");
+const screening = document.getElementById("screening");
 
 async function doSomething() {
   const item = await chrome.storage.sync.get(["homeFeed"]);
@@ -21,6 +22,7 @@ async function doSomething() {
   const item9 = await chrome.storage.sync.get(["videoControls"]);
   const item10 = await chrome.storage.sync.get(["limitInfiniteScroll"]);
   const item11 = await chrome.storage.sync.get(["thumbnails"]);
+  const item12 = await chrome.storage.sync.get(["screening"]);
   document.getElementById("homeFeed").checked = item.homeFeed;
   document.getElementById("recommendedVideos").checked =
     item2.recommendedVideos;
@@ -33,6 +35,7 @@ async function doSomething() {
   document.getElementById("videoControls").checked = item9.videoControls;
   document.getElementById("limitInfiniteScroll").checked = Boolean(item10.limitInfiniteScroll);
   document.getElementById("thumbnails").checked = item11.thumbnails;
+  document.getElementById("screening").checked = item12.screening;
 }
 
 homeFeed.addEventListener("change", function (event) {
@@ -338,7 +341,7 @@ searchBar.addEventListener("change", function (event) {
             {currentWindow: true, active: true },
             async function (tabs) {
                 my_tabid = await tabs[0].id;
-                if (tabs[0].url.includes("youtube.com/watch")) {
+                if (tabs[0].url.includes("youtube.com")) {
                     let message = {
                         text: "hideSearchBar",
                     };
@@ -356,7 +359,7 @@ searchBar.addEventListener("change", function (event) {
             {currentWindow: true, active: true },
             async function (tabs) {
                 my_tabid = await tabs[0].id;
-                if (tabs[0].url.includes("youtube.com/watch")) {
+                if (tabs[0].url.includes("youtube.com")) {
                     let message = {
                         text: "showSearchBar",
                     };
@@ -434,6 +437,20 @@ thumbnails.addEventListener("change", function (event) {
       text: action ? "hideThumbnails" : "showThumbnails"
     });
   });
+});
+
+screening.addEventListener("change", function(event) {
+    action = this.checked;
+    chrome.storage.sync.set({ screening: action });
+
+    chrome.tabs.query({currentWindow: true, active: true}, async (tabs) => {
+        const tab = tabs[0];
+        if (!tab.url.includes("youtube.com")) return;
+
+        await chrome.tabs.sendMessage(tab.id, {
+            text: action ? "showScreening" : "hideScreening"
+        });
+    });
 });
 
 doSomething();

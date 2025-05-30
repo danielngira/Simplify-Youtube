@@ -5,6 +5,11 @@ let item,
   item5,
   item6,
   item7,
+  item8,
+  item9,
+  item10,
+  item11,
+  item12,
   related,
   homeFeed,
   scrollContainer,
@@ -18,7 +23,10 @@ let item,
   searchBar,
   videoControls,
   limitInfiniteScroll,
-  thumbnails;
+  thumbnails,
+  screening,
+  sideContent;
+
 async function doSomething() {
   item = await chrome.storage.sync.get(["homeFeed"]);
   item2 = await chrome.storage.sync.get(["recommendedVideos"]);
@@ -31,6 +39,7 @@ async function doSomething() {
   item9 = await chrome.storage.sync.get(["videoControls"]);
   item10 = await chrome.storage.sync.get(["limitInfiniteScroll"]);
   item11 = await chrome.storage.sync.get(["thumbnails"]);
+  item12 = await chrome.storage.sync.get(["screening"]);
 }
 doSomething();
 
@@ -55,13 +64,17 @@ async function performAction(message) {
   } else if (message === "hideHomeFeed") {
     homeFeed = document.getElementById("contents");
     scrollContainer = document.getElementById("chips-wrapper");
+    sideContent = document.getElementById("contentContainer");
     homeFeed.style["display"] = "none";
     scrollContainer.style["display"] = "none";
+    sideContent.style["display"] = "none";
   } else if (message === "showHomeFeed") {
     homeFeed = document.getElementById("contents");
     scrollContainer = document.getElementById("chips-wrapper");
+    sideContent = document.getElementById("contentContainer");
     homeFeed.style["display"] = "";
     scrollContainer.style["display"] = "";
+    sideContent.style["display"] = "";
   } else if (message === "hideShorts") {
     shorts = document.querySelector("[title='Shorts']");
     shorts.style["display"] = "none";
@@ -144,6 +157,33 @@ async function performAction(message) {
     thumbnails.forEach(function (thumbnail){
       thumbnail.style["visibility"] = "visible";
     });
+  }
+    else if (message === "showScreening") {
+        // hide the feed 
+        homeFeed = document.getElementById("contents");
+        scrollContainer = document.getElementById("chips-wrapper");
+        homeFeed.style["display"] = "none";
+        scrollContainer.style["display"] = "none";
+    
+
+                // show a JS confirm dialog
+        const ok = window.confirm("Do you want to continue to YouTube?");
+        if (!ok) {
+            // user clicked “Cancel” → redirect away
+            window.location.href = "about:blank";
+        } else {
+            // user clicked “OK” → restore the feed
+            homeFeed.style.display = "";
+            scrollContainer.style.display = "";
+        }
+  }
+  else if (message === "hideScreening") {
+        homeFeed = document.getElementById("contents");
+        scrollContainer = document.getElementById("chips-wrapper");
+        homeFeed.style["display"] = "";
+        scrollContainer.style["display"] = "";
+        screening = document.getElementById("screening");
+        screening.style.display = ["none"];
   }
 
   else if (message === "hello") {
@@ -235,6 +275,10 @@ async function performAction(message) {
         thumbnail.style["visibility"] = "hidden";
       });
     }
+    if (item12 && item12.screening) {
+        // simply re-use our new showScreening behavior
+        performAction("showScreening");
+    }
   }
 }
 
@@ -276,6 +320,5 @@ if (observerTarget) {
   });
   observer.observe(observerTarget, { childList: true, subtree: true });
 }
-
 
 performAction("hello");
